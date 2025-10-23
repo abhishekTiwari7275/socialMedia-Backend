@@ -17,16 +17,19 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.POSTGRES_HOST || 'localhost',
-      port: Number(process.env.POSTGRES_PORT) || 5432,
-      username: process.env.POSTGRES_USER || 'postgres',
-      password: process.env.POSTGRES_PASSWORD || 'postgres',
-      database: process.env.POSTGRES_DB || 'social_feed',
-      autoLoadEntities: true,
-      synchronize: true,
-    }),
+   TypeOrmModule.forRoot({
+  type: 'postgres',
+  host: process.env.POSTGRES_HOST,
+  port: Number(process.env.POSTGRES_PORT),
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DB,
+  synchronize: true, // false in production if needed
+  autoLoadEntities: true,
+  ssl: {
+    rejectUnauthorized: false, // this allows Render's self-signed SSL
+  },
+}),
     MongooseModule.forRoot(process.env.MONGO_URI as string),
     CacheModule.registerAsync({
       useFactory: () => ({
