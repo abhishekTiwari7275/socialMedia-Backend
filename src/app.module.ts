@@ -1,11 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
-
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MongooseModule } from '@nestjs/mongoose';
-
 
 import { UsersModule } from './users/users.module';
 import { FeedsModule } from './feeds/feeds.module';
@@ -17,28 +12,18 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-   TypeOrmModule.forRoot({
-  type: 'postgres',
-  host: process.env.POSTGRES_HOST,
-  port: Number(process.env.POSTGRES_PORT),
-  username: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  database: process.env.POSTGRES_DB,
-  synchronize: true, // false in production if needed
-  autoLoadEntities: true,
-  ssl: {
-    rejectUnauthorized: false, // this allows Render's self-signed SSL
-  },
-}),
-    MongooseModule.forRoot(process.env.MONGO_URI as string),
-    CacheModule.registerAsync({
-      useFactory: () => ({
-        store: redisStore as any,
-        host: process.env.REDIS_HOST || '127.0.0.1',
-        port: Number(process.env.REDIS_PORT) || 6379,
-        ttl: 30,
-      }),
-      isGlobal: true,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      synchronize: true, // set false in production
+      autoLoadEntities: true,
+      ssl: {
+        rejectUnauthorized: false, // only if your host requires SSL
+      },
     }),
     UsersModule,
     FeedsModule,

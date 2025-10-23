@@ -1,10 +1,11 @@
+// error-logs.module.ts
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ErrorLogsService } from './error-logs.service';
-import { ErrorLog, ErrorLogSchema } from './error-log.schema';
+import { ErrorLog } from './error-log.entity';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: ErrorLog.name, schema: ErrorLogSchema }])],
+  imports: [TypeOrmModule.forFeature([ErrorLog])],
   providers: [ErrorLogsService],
   exports: [ErrorLogsService],
 })

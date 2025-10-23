@@ -1,33 +1,30 @@
+// error-logs.service.ts
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { ErrorLog, ErrorLogDocument } from './error-log.schema';
-
-export interface LogErrorDto {
-  message: string;
-  stack?: string;
-  context?: string;
-}
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ErrorLog } from './error-log.entity';
 
 @Injectable()
 export class ErrorLogsService {
   constructor(
-    @InjectModel(ErrorLog.name) private errorLogModel: Model<ErrorLogDocument>,
+    @InjectRepository(ErrorLog)
+    private readonly errorLogRepo: Repository<ErrorLog>,
   ) {}
 
-  async logError({ message, stack, context }: LogErrorDto) {
-    const log = new this.errorLogModel({
-      message,
-      stack,
-      context,
-      createdAt: new Date(),
-    });
-    return log.save();
+  async logError({
+    message,
+    stack,
+    context,
+  }: {
+    message: string;
+    stack?: string;
+    context?: string;
+  }) {
+    const error = this.errorLogRepo.create({ message, stack, context });
+    return this.errorLogRepo.save(error);
   }
 
-
   async findAll() {
-    return this.errorLogModel.find().exec();
+    return this.errorLogRepo.find({ order: { createdAt: 'DESC' } });
   }
 }
