@@ -1,15 +1,12 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Feed } from './feed.entity';
-import { User } from '../users/user.entity';
 
 @Injectable()
 export class FeedsService {
   constructor(
     @InjectRepository(Feed) private feedRepo: Repository<Feed>,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async createFeed(feed: Partial<Feed>) {
@@ -18,17 +15,11 @@ export class FeedsService {
   }
 
   async listFeeds(page = 1, limit = 10) {
-    const cacheKey = `feeds-page-${page}`;
-    const cached = await this.cacheManager.get(cacheKey);
-    if (cached) return cached;
-
     const feeds = await this.feedRepo.find({
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
     });
-
-await this.cacheManager.set(cacheKey, feeds, 30); // just number of seconds
 
     return feeds;
   }
